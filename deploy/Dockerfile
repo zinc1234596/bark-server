@@ -4,10 +4,16 @@ COPY . /go/src/github.com/finb/bark-server
 
 WORKDIR /go/src/github.com/finb/bark-server
 
-             RUN set -ex \
-    && apk add --no-cache gcc libc-dev \
+RUN set -ex \
+    && apk add git gcc libc-dev \
+    && BUILD_VERSION=$(git describe --tags) \
+    && BUILD_DATE=$(date "+%F %T") \
+    && COMMIT_SHA1=$(git rev-parse HEAD) \
     && go install -trimpath -ldflags \
-            "-w -s"
+            "-X 'main.version=${BUILD_VERSION}' \
+             -X 'main.buildDate=${BUILD_DATE}' \
+             -X 'main.commitID=${COMMIT_SHA1}' \
+             -w -s"
 
 FROM alpine
 
